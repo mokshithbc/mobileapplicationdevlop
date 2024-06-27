@@ -1,49 +1,32 @@
-package com.example.simplecalculator;
-
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.os.Bundle;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
-
-public class MainActivity extends AppCompatActivity {
-    EditText e1,e2;
-    TextView tv1;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        e1=findViewById(R.id.editText1);
-        e2=findViewById(R.id.editText2);
-        tv1=findViewById(R.id.textView1);
-
-    }
-    public void add(View view){
-        int a1=Integer.parseInt(e1.getText().toString());
-        int a2=Integer.parseInt((e2.getText().toString()));
-        int result=a1+a2;
-        tv1.setText(""+result);
-
-    }
-    public void sub(View view){
-        int a1=Integer.parseInt(e1.getText().toString());
-        int a2=Integer.parseInt(e2.getText().toString());
-        int result=a1-a2;
-        tv1.setText(""+result);
-    }
-    public void mult(View view){
-        int a1=Integer.parseInt(e1.getText().toString());
-        int a2=Integer.parseInt(e2.getText().toString());
-        int result=a1*a2;
-        tv1.setText(""+result);
-
-    }
-    public void div(View view){
-        float a1=Integer.parseInt(e1.getText().toString());
-        float a2=Integer.parseInt((e2.getText().toString()));
-        float result=a1/a2;
-        tv1.setText(""+result);
-    }
-}
+#7. Develop a Python program to implement rule based and statistical PoS Tagging on text.
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.tag import pos_tag
+from nltk.corpus import stopwords
+text = "John likes to play football with his friends."
+tokens = word_tokenize(text)
+def rule_based_pos_tagging(tokens):
+    tagged_tokens = []
+    for token in tokens:
+        if token.lower() in ["john", "he", "his"]:
+            tagged_tokens.append((token, 'NNP'))
+        elif token.lower() in ["likes", "play"]:
+            tagged_tokens.append((token, 'VB')) 
+        elif token.lower() in ["to", "with"]:
+            tagged_tokens.append((token, 'TO')) 
+        elif token.lower() in ["football", "friends"]:
+            tagged_tokens.append((token, 'NN'))
+        else:
+            tagged_tokens.append((token, 'NN')) 
+    return tagged_tokens
+def statistical_pos_tagging(tokens):
+    tagged_tokens = pos_tag(tokens)
+    return tagged_tokens
+stop_words = set(stopwords.words('english'))
+tokens_without_stopwords = [token for token in tokens if token.lower() not in stop_words]
+rule_based_tags = rule_based_pos_tagging(tokens)
+statistical_tags = statistical_pos_tagging(tokens_without_stopwords)
+print("Rule-based PoS tagging:")
+print(rule_based_tags)
+print("\nStatistical PoS tagging:")
+print(statistical_tags)
