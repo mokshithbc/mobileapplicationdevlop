@@ -1,40 +1,17 @@
-package com.example.loginapplication;
-
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.Toast;
-
-public class LoginActivity extends AppCompatActivity {
-    EditText emailText,passwordText;
-    String rEmail,rPassword;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        emailText=findViewById(R.id.editTextEmailAddress);
-        passwordText=findViewById(R.id.editTextPassword);
-        rEmail=getIntent().getStringExtra("email");
-        rPassword=getIntent().getStringExtra("password");
-
-    }
-    public void login(View view){
-        String email=emailText.getText().toString();
-        String password=passwordText.getText().toString();
-        if(rEmail.equals(email) && rPassword.equals(password))
-        {
-            Intent intent=new Intent(this,Loginsuccesful.class);
-            startActivity(intent);
-        }
-        else {
-            Toast.makeText(this,"invalid credentials",Toast.LENGTH_LONG).show();
-        }
-
-
-
-    }
-}
+#6. Develop a Python program to perform K-means clustering on text.
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.cluster import KMeans
+from sklearn.datasets import fetch_20newsgroups
+newsgroups = fetch_20newsgroups(subset='all')
+vectorizer = TfidfVectorizer(stop_words='english', max_features=1000)
+X = vectorizer.fit_transform(newsgroups.data)
+k = 20
+kmeans = KMeans(n_clusters=k, random_state=42)
+kmeans.fit(X)
+terms = vectorizer.get_feature_names_out()
+order_centroids = kmeans.cluster_centers_.argsort()[:, ::-1]
+for i in range(k):
+    print(f"Cluster {i + 1}:")
+    top_terms = [terms[ind] for ind in order_centroids[i, :5]]
+    print(top_terms)
