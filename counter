@@ -1,46 +1,23 @@
-package com.example.countapplication;
-
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.os.Bundle;
-import android.os.Handler;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-
-public class MainActivity extends AppCompatActivity {
-    Button btnstart, btnstop;
-    TextView textCounter;
-    int i = 1;
-    Handler customHandler = new Handler();
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        btnstart = findViewById(R.id.button_start);
-        btnstop = findViewById(R.id.button_stop);
-        textCounter = findViewById(R.id.textView);
-        btnstart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                customHandler.postDelayed(updateTimerThread, 0);
-            }
-        });
-        btnstop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                customHandler.removeCallbacks(updateTimerThread);
-            }
-        });
-    }
-
-    private final Runnable updateTimerThread = new Runnable() {
-        @Override
-        public void run() {
-            textCounter.setText("" + i);
-            customHandler.postDelayed(this, 1000);
-            i++;
-        }
-    };
-}
+# 5. Develop a Python program to classify text using Naïve Bayes and SVM.
+import numpy as np
+from sklearn.datasets import fetch_20newsgroups
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.svm import SVC
+from sklearn.metrics import classification_report
+from sklearn.model_selection import train_test_split
+newsgroups_train = fetch_20newsgroups(subset='train')
+X_train, X_test, y_train, y_test = train_test_split(newsgroups_train.data, newsgroups_train.target, test_size=0.2, random_state=42)
+vectorizer = TfidfVectorizer()
+X_train_vectorized = vectorizer.fit_transform(X_train)
+X_test_vectorized = vectorizer.transform(X_test)
+nb_classifier = MultinomialNB()
+nb_classifier.fit(X_train_vectorized, y_train)
+nb_predictions = nb_classifier.predict(X_test_vectorized)
+svm_classifier = SVC(kernel='linear')
+svm_classifier.fit(X_train_vectorized, y_train)
+svm_predictions = svm_classifier.predict(X_test_vectorized)
+print("Naïve Bayes Classifier:")
+print(classification_report(y_test,nb_predictions,target_names=newsgroups_train.target_names))
+print("\nSupport Vector Machine (SVM) Classifier:")
+print(classification_report(y_test,svm_predictions,target_names=newsgroups_train.target_names))
