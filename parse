@@ -1,101 +1,54 @@
-package com.example.lab6;
+#9. Develop a Python program to implement HMM and CRF on sequence tagging task.
+import numpy as np
+from hmmlearn import hmm
+from sklearn_crfsuite import CRF
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
 
-import androidx.appcompat.app.AppCompatActivity;
+X = [['walk', 'in', 'the', 'park'],['eat', 'apple'],['eat', 'apple', 'in', 'the', 'morning']]
+y = [['V', 'P', 'D', 'N'],['V', 'N'],['V', 'N', 'P', 'D', 'N']]
 
-import android.os.Bundle;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
+X_encoded = [[ord(word[0]) - ord('a') + 1 for word in sentence] for sentence in X]
+y_encoded = [[ord(tag) - ord('A') for tag in tags] for tags in y]
+X_train, X_test, y_train, y_test = train_test_split(X_encoded, y_encoded, test_size=0.2, random_state=42)
+hmm_model = hmm.MultinomialHMM(n_components=3)  # Number of states
+X_train_concat = np.concatenate([np.array(seq) for seq in X_train])
+lengths = [len(seq) for seq in X_train]
+hmm_model.fit(X_train_concat.reshape(-1, 1), lengths)
+X_test_concat = np.concatenate([np.array(seq) for seq in X_test])
+test_lengths = [len(seq) for seq in X_test]
+logprob, hmm_pred = hmm_model.decode(X_test_concat.reshape(-1, 1), lengths=test_lengths)
+hmm_pred_labels = [chr(state + ord('A')) for state in hmm_pred]
+y_test_flat = [chr(tag + ord('A')) for seq in y_test for tag in seq]
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-public class MainActivity extends AppCompatActivity {
-
-    TextView display;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        display = findViewById(R.id.textView2);
+def word2features(sent, i):
+    word = sent[i]
+    features = {
+        'word': str(word),
     }
-    public void  parseXML(View view)
-    {
-        try {
-            InputStream is = getAssets().open("city.xml");
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document document = documentBuilder.parse(is);
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("XML Data");
-            stringBuilder.append("\n-------------------------");
-            NodeList nodeList =document.getElementsByTagName("place");
-            for(int i=0;i<nodeList.getLength();i++)
-            {
-                Node node = nodeList.item(i);
-                if(node.getNodeType()==Node.ELEMENT_NODE)
-                {
-                    Element element = (Element)node;
-                    stringBuilder.append("\nName:").append(getValue("name",element));
-                    stringBuilder.append("\nLatitude:").append(getValue("lat",element));
-                    stringBuilder.append("\nLongitude:").append(getValue("long",element));
-                    stringBuilder.append("\nTemperature:").append(getValue("temperature",element));
-                    stringBuilder.append("\nHumidity:").append(getValue("humidity",element));
-                    stringBuilder.append("\n----------------");
-                }
-            }
-            display.setText(stringBuilder.toString());
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            Toast.makeText(this, "error in xmlparse", Toast.LENGTH_SHORT).show();
-        }
-    }
-    public void ParseJSON(View view)
-    {
-        String json;
-        StringBuilder stringBuilder = new StringBuilder();
-        try {
-            InputStream is = getAssets().open("city.json");
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            json = new String(buffer, StandardCharsets.UTF_8);
-            JSONArray jsonArray = new JSONArray(json);
-            stringBuilder.append("JSON DATA");
-            stringBuilder.append("\n---------------");
-            for (int i=0;i<jsonArray.length();i++){
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                stringBuilder.append("\n Name").append(jsonObject.getString("name"));
-                stringBuilder.append("\n Latitude").append(jsonObject.getString("lat"));
-                stringBuilder.append("\n Longitude").append(jsonObject.getString("long"));
-                stringBuilder.append("\n Temperature").append(jsonObject.getString("temperature"));
-                stringBuilder.append("\n humidity").append(jsonObject.getString("humidity"));
-                stringBuilder.append("\n------------------------");
-            }
-            display.setText(stringBuilder.toString());
-            is.close();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            Toast.makeText(this, "error in parsejson", Toast.LENGTH_LONG).show();
-        }
-    }
-    private String getValue(String tag,Element element)
-    {
-        return element.getElementsByTagName(tag).item(0).getChildNodes().item(0).getNodeValue();
-    }
-}
+    if i > 0:
+        features['-1:word'] = str(sent[i - 1])
+    else:
+        features['BOS'] = True  # Beginning of sentence
+    if i < len(sent) - 1:
+        features['+1:word'] = str(sent[i + 1])
+    else:
+        features['EOS'] = True  # End of sentence
+    return features
+
+def sent2features(sent):
+    return [word2features(sent, i) for i in range(len(sent))]
+
+X_train_feats = [sent2features(sent) for sent in X_train]
+y_train_labels = [[chr(tag + ord('A')) for tag in tags] for tags in y_train]
+X_test_feats = [sent2features(sent) for sent in X_test]
+y_test_labels = [[chr(tag + ord('A')) for tag in tags] for tags in y_test]
+crf_model = CRF()
+crf_model.fit(X_train_feats, y_train_labels)
+# 
+print("HMM Results:\n",classification_report(y_test_flat, hmm_pred_labels))
+print("\nCRF Results:")
+crf_pred = crf_model.predict(X_test_feats)
+y_test_flat = [item for sublist in y_test_labels for item in sublist]
+crf_pred_flat = [item for sublist in crf_pred for item in sublist]
+print(classification_report(y_test_flat, crf_pred_flat))
