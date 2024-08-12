@@ -1,23 +1,28 @@
-# 5. Develop a Python program to classify text using Naïve Bayes and SVM.
+#3. Write a program to extract features from text by using the following techniques: i) One Hot Encoding ii) Bag of Word (BOW) iii) n-gramsx) Tf-Idf iv) Custom features v) Word2Vec (Word Embedding)
 import numpy as np
-from sklearn.datasets import fetch_20newsgroups
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.svm import SVC
-from sklearn.metrics import classification_report
-from sklearn.model_selection import train_test_split
-newsgroups_train = fetch_20newsgroups(subset='train')
-X_train, X_test, y_train, y_test = train_test_split(newsgroups_train.data, newsgroups_train.target, test_size=0.2, random_state=42)
-vectorizer = TfidfVectorizer()
-X_train_vectorized = vectorizer.fit_transform(X_train)
-X_test_vectorized = vectorizer.transform(X_test)
-nb_classifier = MultinomialNB()
-nb_classifier.fit(X_train_vectorized, y_train)
-nb_predictions = nb_classifier.predict(X_test_vectorized)
-svm_classifier = SVC(kernel='linear')
-svm_classifier.fit(X_train_vectorized, y_train)
-svm_predictions = svm_classifier.predict(X_test_vectorized)
-print("Naïve Bayes Classifier:")
-print(classification_report(y_test,nb_predictions,target_names=newsgroups_train.target_names))
-print("\nSupport Vector Machine (SVM) Classifier:")
-print(classification_report(y_test,svm_predictions,target_names=newsgroups_train.target_names))
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from gensim.models import Word2Vec
+text_data = ["This is the first document.", "This document is the second document.", "And this is the third one.","Is this the first document?",]
+
+def one_hot_encoding(text_data):
+    unique_words = set(" ".join(text_data).split())
+    encoded_data = []
+    for text in text_data:
+        encoded_text = [1 if word in text else 0 for word in unique_words]
+        encoded_data.append(encoded_text)
+    return np.array(encoded_data)
+
+one_hot_encoded = one_hot_encoding(text_data)
+print("One Hot Encoding:\n",one_hot_encoded)
+vectorizer = CountVectorizer()
+bow_features = vectorizer.fit_transform(text_data)
+print("\nBag of Words (BOW):\n",bow_features.toarray())
+ngram_vectorizer = CountVectorizer(ngram_range=(1, 2))
+ngram_features = ngram_vectorizer.fit_transform(text_data)
+print("\nn-grams:\n",ngram_features.toarray())
+tfidf_features = TfidfVectorizer().fit_transform(text_data)
+print("\nTf-Idf:\n",tfidf_features.toarray())
+print("\nCustom Features:\n",np.array([[len(doc)] for doc in text_data]))
+word2vec_model = Word2Vec([doc.split() for doc in text_data], min_count=1)
+word2vec_features = np.array([np.mean([word2vec_model.wv[word] for word in doc.split()], axis=0) for doc in text_data])
+print("\nWord2Vec (Word Embedding) Features:",word2vec_features)
