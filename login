@@ -1,17 +1,20 @@
-#6. Develop a Python program to perform K-means clustering on text.
+#2. Develop a Python program that systematically implements an N-gram language model for sentiment analysis on a financial dataset.
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.cluster import KMeans
-from sklearn.datasets import fetch_20newsgroups
-newsgroups = fetch_20newsgroups(subset='all')
-vectorizer = TfidfVectorizer(stop_words='english', max_features=1000)
-X = vectorizer.fit_transform(newsgroups.data)
-k = 20
-kmeans = KMeans(n_clusters=k, random_state=42)
-kmeans.fit(X)
-terms = vectorizer.get_feature_names_out()
-order_centroids = kmeans.cluster_centers_.argsort()[:, ::-1]
-for i in range(k):
-    print(f"Cluster {i + 1}:")
-    top_terms = [terms[ind] for ind in order_centroids[i, :5]]
-    print(top_terms)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score, classification_report
+data = pd.read_csv("data.csv")
+X = data['Sentence']
+y = data['Sentiment']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+vectorizer = CountVectorizer(ngram_range=(1, 2)) 
+X_train_vectorized = vectorizer.fit_transform(X_train)
+X_test_vectorized = vectorizer.transform(X_test)
+classifier = MultinomialNB()
+classifier.fit(X_train_vectorized, y_train)
+y_pred = classifier.predict(X_test_vectorized)
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy:", accuracy)
+print("\nClassification Report:",classification_report(y_test, y_pred))
