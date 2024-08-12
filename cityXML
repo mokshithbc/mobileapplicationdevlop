@@ -1,18 +1,16 @@
-<?xml version="1.0"?>
-<records>
-    <place>
-        <name>Mysore</name>
-        <lat>12.295</lat>
-        <long>75.639</long>
-        <temperature>22</temperature>
-        <humidity>90%</humidity>
-    </place>
-
-    <place>
-        <name>Banglore</name>
-        <lat>12.9143</lat>
-        <long>77.9804</long>
-        <temperature>25</temperature>
-        <humidity>74 %</humidity>
-    </place>
-</records>
+#4. Develop a python program to implement Topic Modelling using Latent Semantic Analysis.
+import numpy as np
+from sklearn.decomposition import TruncatedSVD
+from sklearn.feature_extraction.text import CountVectorizer
+documents = ["baseball soccer basketball", "soccer basketball tennis","tennis cricket", "cricket soccer"]
+vectorizer = CountVectorizer()
+X = vectorizer.fit_transform(documents)
+lsa = TruncatedSVD(n_components=2)
+lsa.fit(X)
+terms = vectorizer.get_feature_names_out()
+topic_matrix = np.array([lsa.components_[i] / np.linalg.norm(lsa.components_[i]) for i in range(lsa.components_.shape[0])])
+print("Top terms for each topic:")
+for i, topic in enumerate(topic_matrix):
+    top_indices = topic.argsort()[-5:][::-1] # Get the top 5 terms for each topic
+    top_terms = [terms[index] for index in top_indices]
+    print(f"Topic {i + 1}: {' '.join(top_terms)}")
