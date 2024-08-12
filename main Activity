@@ -1,62 +1,32 @@
-package com.example.loginapplication;
-
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.Toast;
-
-import java.util.regex.Pattern;
-
-public class MainActivity extends AppCompatActivity {
-    EditText emailText,passwordText;
-
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        emailText=findViewById(R.id.editTextEmailAddress);
-        passwordText=findViewById((R.id.editTextPassword));
-    }
-    public void signup(View view){
-        String email=emailText.getText().toString();
-        String password=passwordText.getText().toString();
-        if(!isvalidPassword(password)){
-            Toast.makeText(this,"password does not match rules",Toast.LENGTH_LONG).show();
-            return;
-        }
-        Intent intent=new Intent(this,LoginActivity.class);
-        intent.putExtra("email",email);
-        intent.putExtra("password",password);
-        startActivity(intent);
-
-    }
-    Pattern lowercase = Pattern.compile("^.*[a-z].*$");
-    Pattern uppercase=Pattern.compile("^.*[A-Z].*$");
-    Pattern number=Pattern.compile("^.*[0-9].*$$");
-    Pattern schar=Pattern.compile("^.*[^a-zA-Z0-9].*$");
-    private Boolean isvalidPassword(String password)
-    {
-        if(password.length()<8)
-        {
-            return false;
-        }
-        if(!lowercase.matcher(password).matches()){
-            return false;
-        }
-        if(!uppercase.matcher(password).matches()){
-            return false;
-        }
-        if(!number.matcher(password).matches()){
-            return false;
-        }
-        if(!schar.matcher(password).matches()){
-            return false;
-        }
-        return true;
-
-    }
-}
+#7. Develop a Python program to implement rule based and statistical PoS Tagging on text.
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.tag import pos_tag
+from nltk.corpus import stopwords
+text = "John likes to play football with his friends."
+tokens = word_tokenize(text)
+def rule_based_pos_tagging(tokens):
+    tagged_tokens = []
+    for token in tokens:
+        if token.lower() in ["john", "he", "his"]:
+            tagged_tokens.append((token, 'NNP'))
+        elif token.lower() in ["likes", "play"]:
+            tagged_tokens.append((token, 'VB')) 
+        elif token.lower() in ["to", "with"]:
+            tagged_tokens.append((token, 'TO')) 
+        elif token.lower() in ["football", "friends"]:
+            tagged_tokens.append((token, 'NN'))
+        else:
+            tagged_tokens.append((token, 'NN')) 
+    return tagged_tokens
+def statistical_pos_tagging(tokens):
+    tagged_tokens = pos_tag(tokens)
+    return tagged_tokens
+stop_words = set(stopwords.words('english'))
+tokens_without_stopwords = [token for token in tokens if token.lower() not in stop_words]
+rule_based_tags = rule_based_pos_tagging(tokens)
+statistical_tags = statistical_pos_tagging(tokens_without_stopwords)
+print("Rule-based PoS tagging:")
+print(rule_based_tags)
+print("\nStatistical PoS tagging:")
+print(statistical_tags)
