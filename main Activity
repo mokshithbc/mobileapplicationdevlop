@@ -1,32 +1,30 @@
-#7. Develop a Python program to implement rule based and statistical PoS Tagging on text.
+#1. Develop a python program to perform Basic Text Processing operations (Tokenization, lemmatization, stemming) on any text document.
 import nltk
 from nltk.tokenize import word_tokenize
-from nltk.tag import pos_tag
+from nltk.stem import WordNetLemmatizer, PorterStemmer
 from nltk.corpus import stopwords
-text = "John likes to play football with his friends."
-tokens = word_tokenize(text)
-def rule_based_pos_tagging(tokens):
-    tagged_tokens = []
-    for token in tokens:
-        if token.lower() in ["john", "he", "his"]:
-            tagged_tokens.append((token, 'NNP'))
-        elif token.lower() in ["likes", "play"]:
-            tagged_tokens.append((token, 'VB')) 
-        elif token.lower() in ["to", "with"]:
-            tagged_tokens.append((token, 'TO')) 
-        elif token.lower() in ["football", "friends"]:
-            tagged_tokens.append((token, 'NN'))
-        else:
-            tagged_tokens.append((token, 'NN')) 
-    return tagged_tokens
-def statistical_pos_tagging(tokens):
-    tagged_tokens = pos_tag(tokens)
-    return tagged_tokens
-stop_words = set(stopwords.words('english'))
-tokens_without_stopwords = [token for token in tokens if token.lower() not in stop_words]
-rule_based_tags = rule_based_pos_tagging(tokens)
-statistical_tags = statistical_pos_tagging(tokens_without_stopwords)
-print("Rule-based PoS tagging:")
-print(rule_based_tags)
-print("\nStatistical PoS tagging:")
-print(statistical_tags)
+import string
+nltk.download('punkt')
+nltk.download('wordnet')
+nltk.download('stopwords')
+def preprocess_text(text):
+    tokens = word_tokenize(text.lower())
+    tokens = [token for token in tokens if token not in string.punctuation]
+    stop_words = set(stopwords.words('english'))
+    tokens = [token for token in tokens if token not in stop_words]
+    return tokens
+def lemmatize(tokens):
+    lemmatizer = WordNetLemmatizer()
+    lemmas = [lemmatizer.lemmatize(token) for token in tokens]
+    return lemmas
+def stem(tokens):
+    stemmer = PorterStemmer()
+    stems = [stemmer.stem(token) for token in tokens]
+    return stems
+text = "Tokenization is the process of breaking down text into words and phrases. Stemming and Lemmatization are techniques used to reduce words to their base form."
+tokens = preprocess_text(text)
+lemmas = lemmatize(tokens)
+print("Lemmatization:")
+print(lemmas)
+stems = stem(tokens)
+print("\nStemming:\n",stems)
